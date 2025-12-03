@@ -585,6 +585,139 @@ venv/bin/python public/pptx/ooxml/scripts/pack.py unpacked/ output.pptx
 
 ---
 
+## Working with Messy Decks
+
+Most real-world PowerPoint files aren't clean templates. They're messy — slides copied from multiple sources, manual text boxes instead of placeholders, inconsistent formatting. This section covers how to work with them.
+
+### Recognizing a Messy Deck
+
+Signs you have a messy deck:
+- `placeholder_type: null` for most shapes in inventory
+- Slides with 5+ random text boxes at odd positions
+- Inconsistent sizing (similar-looking boxes have different widths)
+- No clear master/layout structure
+- Mix of fonts, sizes, colors with no pattern
+
+### The Inventory Tells the Truth
+
+Even in messy decks, `inventory.py` reveals the actual structure:
+
+```json
+{
+  "slide-3": {
+    "shape-0": {
+      "left": 0.5,
+      "top": 0.3,
+      "width": 12.3,
+      "placeholder_type": null,  // Not a real placeholder - manual text box
+      "paragraphs": [{"text": "Some Heading"}]
+    },
+    "shape-1": {
+      "left": 0.5,
+      "top": 1.5,
+      "width": 5.8,             // Left half of slide
+      "paragraphs": [{"text": "Left content"}]
+    },
+    "shape-2": {
+      "left": 6.8,
+      "top": 1.5,
+      "width": 5.8,             // Right half of slide
+      "paragraphs": [{"text": "Right content"}]
+    }
+  }
+}
+```
+
+**Key insight:** `placeholder_type: null` means manually placed shape. You can still use it — just know it wasn't designed as a template element.
+
+### Visual Analysis is Critical
+
+When there's no structure to rely on, thumbnails are your guide:
+
+```bash
+venv/bin/python public/pptx/scripts/thumbnail.py messy.pptx outputs/analysis/thumbs
+```
+
+Then manually document what you see:
+
+```markdown
+# Visual Slide Analysis (messy deck)
+
+| Index | What I See | Usable For |
+|-------|------------|------------|
+| 0 | Big text center, small text below | Title slide |
+| 1 | Just a big heading | Section break |
+| 2 | Heading + one text box below | Single content |
+| 3 | Heading + two boxes side by side | Two-column-ish |
+| 4 | Heading + THREE boxes (uneven sizes) | Three-column (imperfect) |
+| 5 | Heading + giant empty space + small text | Was image+text, image deleted |
+| 6 | Total chaos - 8 random text boxes | AVOID - too messy |
+```
+
+### Identify Usable Slides by Position
+
+Use the inventory positions to identify layout structure:
+
+```python
+# Pseudo-logic for identifying layout from inventory
+def identify_layout(shapes):
+    # Filter to content shapes (exclude tiny shapes, likely decorative)
+    content_shapes = [s for s in shapes if s['width'] > 2.0 and s['height'] > 0.5]
+
+    # Check for side-by-side arrangement
+    lefts = [s['left'] for s in content_shapes]
+    if len(content_shapes) == 3:
+        # One at top (title), two side by side below
+        return "two-column-ish"
+    elif len(content_shapes) == 4:
+        # Title + three columns
+        return "three-column-ish"
+    else:
+        return "single-column or chaos"
+```
+
+### Fallback Strategies
+
+When the deck doesn't have what you need:
+
+| You Need | Deck Has | Solution |
+|----------|----------|----------|
+| 3-column | Only 2-column | Use 2-col for 2 items, bullets for 3+ |
+| Clean bullet layout | Only messy text boxes | Find the cleanest single-box slide |
+| Image+text | No image slides | Use text-only, mention image separately |
+| Quote layout | Nothing suitable | Use any centered text slide |
+| Consistent styling | Total chaos | Pick ONE slide style, use it repeatedly |
+
+### The "Good Enough" Principle
+
+With messy decks, aim for:
+- ✓ Content is correct and readable
+- ✓ No obviously broken layouts
+- ✓ Consistent within YOUR new content
+- ✗ Won't perfectly match original deck's chaos
+- ✗ May need manual cleanup afterward
+
+### When to Give Up
+
+Sometimes a deck is too messy. Consider giving up and using bullets when:
+- Slides have 6+ overlapping text boxes
+- Positions make no logical sense
+- You'd spend more time analyzing than creating fresh
+- The "cleanest" slide is still chaotic
+
+**Fallback:** Use the simplest slide with fewest shapes, put everything in bullets.
+
+### Messy Deck Workflow Summary
+
+1. **Thumbnail first** — See what you're working with
+2. **Inventory** — Understand actual shape positions
+3. **Document visually** — Create your own layout inventory based on what you SEE
+4. **Pick best-fit slides** — Choose by visual structure, not by name
+5. **Accept imperfection** — Focus on content correctness over visual perfection
+6. **Verify output** — Thumbnail the result to catch issues
+
+---
+
 ## Output Directory Convention
 
 All edited files go to:

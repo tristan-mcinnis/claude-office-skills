@@ -59,6 +59,58 @@ DECISION TREE:
 
 ---
 
+## NEW: pptx-edit Skill Tests (`test_pptx_edit_skill.py`)
+
+**Objective performance tests** for the new dedicated editing skill. These tests measure whether the skill instructions produce correct behavior.
+
+### Layout Detection Tests
+
+| Test ID | Description | Measures |
+|---------|-------------|----------|
+| LD01 | Detect title slide layout | Layout analysis accuracy |
+| LD02 | Detect two-column layout | Column recognition |
+| LD03 | Detect three-column layout | Multi-column handling |
+| LD04 | Detect messy/complex slides | Chaos recognition |
+
+### Layout Matching Quality Tests
+
+| Test ID | Description | Measures |
+|---------|-------------|----------|
+| LMQ01 | Content count → layout mapping | Rule correctness |
+| LMQ02 | Scenario validation | Decision quality |
+
+### End-to-End Workflow Tests
+
+| Test ID | Description | Measures |
+|---------|-------------|----------|
+| W1.01 | Simple text replacement | Basic workflow |
+| W1.02 | Bullet replacement | List formatting |
+| W3.01 | Rearrange + replace outline | Full workflow |
+
+### Messy Deck Handling Tests
+
+| Test ID | Description | Measures |
+|---------|-------------|----------|
+| MD01 | Inventory messy deck | Robustness |
+| MD02 | Identify null placeholders | Messy deck detection |
+| MD03 | Replace in messy deck | Practical usability |
+
+### Quality Metrics Tests
+
+| Test ID | Description | Measures |
+|---------|-------------|----------|
+| QM01 | No empty shapes after replace | Content completeness |
+| QM02 | Formatting preserved | Style accuracy |
+
+### Skill Compliance Tests
+
+| Test ID | Description | Measures |
+|---------|-------------|----------|
+| SC01 | Inventory before replace | Workflow enforcement |
+| SC02 | Re-inventory after rearrange | Process correctness |
+
+---
+
 ## Test Categories
 
 ### 1. Text Operations (`test_text_ops.py`)
