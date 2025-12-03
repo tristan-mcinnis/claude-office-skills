@@ -6,16 +6,18 @@ Edit existing PowerPoint presentations. For creating new presentations, use the 
 
 Use this skill when:
 - Updating text content in an existing deck
+- Applying a new content outline to an existing deck/template
 - Changing fonts, colors, or sizes throughout a presentation
 - Standardizing formatting across slides
 - Batch find-and-replace operations
 - Fixing inconsistent styling
 - Updating brand elements (colors, fonts)
+- Repurposing a previous project's deck with new content
 
 Do NOT use this skill when:
-- Creating a new presentation from scratch → use `pptx` skill
-- Building from a template with new content → use `pptx` skill
+- Creating a new presentation from scratch (no existing file) → use `pptx` skill
 - Converting HTML to PowerPoint → use `pptx` skill
+- Need complex visual designs not in your existing deck → use `pptx` skill
 
 ---
 
@@ -174,7 +176,192 @@ venv/bin/python public/pptx/ooxml/scripts/pack.py unpacked/ output.pptx
 
 ---
 
-## Workflow 3: Find and Replace Text
+## Workflow 3: Apply New Content Outline to Existing Deck
+
+**Use for:** You have an existing deck (template or previous project) + a new content outline (markdown/text) and want to populate the deck with the new content.
+
+This is the most complex editing workflow. Follow each step carefully.
+
+### Step 1: Analyze the Existing Deck
+
+Create a visual inventory of what slide layouts exist:
+
+```bash
+# Extract text to understand content structure
+venv/bin/python -m markitdown existing.pptx > outputs/project/deck-text.md
+
+# Create thumbnail grid for visual reference
+venv/bin/python public/pptx/scripts/thumbnail.py existing.pptx outputs/project/thumbnails
+
+# Extract detailed inventory
+venv/bin/python public/pptx/scripts/inventory.py existing.pptx outputs/project/inventory.json
+```
+
+### Step 2: Create a Slide Layout Inventory
+
+**MANDATORY:** Before mapping content, document ALL available slide layouts.
+
+Create `outputs/project/layout-inventory.md`:
+
+```markdown
+# Slide Layout Inventory
+
+| Index | Layout Type | Placeholders | Best For |
+|-------|-------------|--------------|----------|
+| 0 | Title slide | title, subtitle | Opening |
+| 1 | Section header | title only | Section breaks |
+| 2 | Title + bullets | title, body (5 bullets) | Lists, key points |
+| 3 | Two-column | title, left, right | Comparisons (2 items) |
+| 4 | Three-column | title, col1, col2, col3 | Comparisons (3 items) |
+| 5 | Image + text | title, text, image placeholder | Visual + explanation |
+| ...
+```
+
+### Step 3: Map Your Outline to Layouts
+
+**CRITICAL LAYOUT MATCHING RULES:**
+
+| Your Content | Correct Layout | WRONG Choice |
+|--------------|----------------|--------------|
+| 2 comparison items | Two-column (index 3) | Three-column (empty column!) |
+| 3 pillars/items | Three-column (index 4) | Two-column (overflow!) |
+| 5+ bullet points | Single-column bullets | Force into columns |
+| No image available | Text-only layout | Image layout (empty!) |
+| Quote with speaker | Quote layout | Content (loses impact) |
+
+Create your mapping plan:
+
+```markdown
+# Content-to-Slide Mapping
+
+## My Outline:
+1. Title: "Q4 Strategy Review"
+2. Agenda (4 items)
+3. Market Overview (3 key trends)
+4. Our Response (2 strategic pillars)
+5. Next Steps (5 action items)
+6. Summary
+
+## Mapping:
+| Outline Section | Slide Index | Layout Used | Why |
+|-----------------|-------------|-------------|-----|
+| Title | 0 | Title slide | Standard opening |
+| Agenda | 2 | Bullets | 4 items = bullet list |
+| Market Overview | 4 | Three-column | Exactly 3 trends |
+| Our Response | 3 | Two-column | Exactly 2 pillars |
+| Next Steps | 2 | Bullets | 5 items = bullet list |
+| Summary | 2 | Bullets | Key takeaways |
+```
+
+### Step 4: Rearrange Slides to Match Outline
+
+Use `rearrange.py` to build your slide sequence:
+
+```bash
+# Format: indices of slides to include (0-based), can repeat
+venv/bin/python public/pptx/scripts/rearrange.py \
+  existing.pptx \
+  outputs/project/working.pptx \
+  0,2,4,3,2,2
+```
+
+The numbers correspond to:
+- `0` = Title slide
+- `2` = Bullets layout (for Agenda)
+- `4` = Three-column (for Market Overview)
+- `3` = Two-column (for Our Response)
+- `2` = Bullets layout (for Next Steps)
+- `2` = Bullets layout (for Summary)
+
+### Step 5: Get Fresh Inventory of Working Deck
+
+```bash
+venv/bin/python public/pptx/scripts/inventory.py \
+  outputs/project/working.pptx \
+  outputs/project/working-inventory.json
+```
+
+**MANDATORY:** Read the entire `working-inventory.json`. The shape IDs may have changed after rearrangement.
+
+### Step 6: Create Replacement JSON from Your Outline
+
+Map your content to the inventory structure:
+
+```json
+{
+  "slide-0": {
+    "shape-0": {
+      "paragraphs": [{"text": "Q4 Strategy Review", "bold": true, "alignment": "CENTER"}]
+    },
+    "shape-1": {
+      "paragraphs": [{"text": "Board Presentation | January 2025", "alignment": "CENTER"}]
+    }
+  },
+  "slide-1": {
+    "shape-0": {
+      "paragraphs": [{"text": "Agenda", "bold": true}]
+    },
+    "shape-1": {
+      "paragraphs": [
+        {"text": "Market Overview", "bullet": true, "level": 0},
+        {"text": "Our Strategic Response", "bullet": true, "level": 0},
+        {"text": "Action Items", "bullet": true, "level": 0},
+        {"text": "Summary & Discussion", "bullet": true, "level": 0}
+      ]
+    }
+  },
+  "slide-2": {
+    "shape-0": {
+      "paragraphs": [{"text": "Market Overview", "bold": true}]
+    },
+    "shape-1": {
+      "paragraphs": [{"text": "Trend 1: Digital Transformation", "bold": true}]
+    },
+    "shape-2": {
+      "paragraphs": [{"text": "Trend 2: Sustainability Focus", "bold": true}]
+    },
+    "shape-3": {
+      "paragraphs": [{"text": "Trend 3: AI Integration", "bold": true}]
+    }
+  }
+}
+```
+
+### Step 7: Apply Replacements
+
+```bash
+venv/bin/python public/pptx/scripts/replace.py \
+  outputs/project/working.pptx \
+  outputs/project/replacements.json \
+  outputs/project/final.pptx
+```
+
+### Step 8: Visual Verification
+
+```bash
+venv/bin/python public/pptx/scripts/thumbnail.py \
+  outputs/project/final.pptx \
+  outputs/project/final-thumbnails
+```
+
+Review thumbnails for:
+- ✓ All slides have content (no empty placeholders)
+- ✓ Text fits without overflow
+- ✓ Layout matches content quantity
+- ✓ Visual balance looks correct
+
+### Common Mistakes to Avoid
+
+| Mistake | Result | Fix |
+|---------|--------|-----|
+| Using 3-column for 2 items | Empty column visible | Use 2-column layout |
+| Forgetting to re-inventory after rearrange | Wrong shape IDs | Always re-run inventory.py |
+| Not including all shapes in JSON | Shapes get cleared | Include every shape you want to keep |
+| Adding bullet symbol in text | Double bullets | Use `"bullet": true`, no symbol in text |
+
+---
+
+## Workflow 4: Find and Replace Text
 
 **Use for:** Replacing specific text patterns throughout (e.g., "Q3" → "Q4", "Old Corp" → "New Corp")
 
