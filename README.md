@@ -6,6 +6,8 @@ Professional Office document creation and editing workflows for the command line
 
 This repository packages the same Office document manipulation skills used by [Claude desktop](https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude) for use with [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) (the CLI version). You get the full power of Claude's document creation capabilities in your terminal, ready to integrate with scripts, CI/CD pipelines, or automated workflows.
 
+The skills are organized following Claude Code's [skills system](https://code.claude.com/docs/en/skills), with each skill in `.claude/skills/` containing a `SKILL.md` file with YAML frontmatter that Claude uses to automatically discover and apply the appropriate workflow.
+
 ## Supported Formats
 
 - **PowerPoint (PPTX)** - Create presentations from scratch or templates, with HTML-to-PPTX conversion
@@ -72,7 +74,7 @@ Simply tell Claude Code what you want to create:
 
 Claude Code will:
 
-1. Check if a skill exists for your task
+1. Automatically detect that a skill exists for your task
 2. Read the appropriate `SKILL.md` workflow
 3. Execute the workflow step-by-step
 4. Save all outputs to `outputs/<document-name>/`
@@ -83,22 +85,22 @@ All scripts can also be run directly:
 
 ```bash
 # Create PowerPoint thumbnail grid
-venv/bin/python public/pptx/scripts/thumbnail.py template.pptx outputs/review/thumbnails
+venv/bin/python .claude/skills/pptx/scripts/thumbnail.py template.pptx outputs/review/thumbnails
 
 # Rearrange slides
-venv/bin/python public/pptx/scripts/rearrange.py template.pptx outputs/deck/final.pptx 0,5,5,12,3
+venv/bin/python .claude/skills/pptx/scripts/rearrange.py template.pptx outputs/deck/final.pptx 0,5,5,12,3
 
 # Extract text inventory
-venv/bin/python public/pptx/scripts/inventory.py deck.pptx outputs/deck/inventory.json
+venv/bin/python .claude/skills/pptx/scripts/inventory.py deck.pptx outputs/deck/inventory.json
 
 # Replace text from JSON
-venv/bin/python public/pptx/scripts/replace.py input.pptx outputs/deck/replacements.json outputs/deck/output.pptx
+venv/bin/python .claude/skills/pptx/scripts/replace.py input.pptx outputs/deck/replacements.json outputs/deck/output.pptx
 ```
 
 ## Repository Structure
 
 ```
-public/
+.claude/skills/
 ├── pptx/           # PowerPoint workflows
 │   ├── SKILL.md    # Main workflow documentation
 │   ├── html2pptx.md # HTML-to-PPTX guide
@@ -116,8 +118,8 @@ outputs/            # Your generated documents (gitignored)
 
 Each format has a `SKILL.md` file that defines the workflow. Claude Code:
 
-1. **Checks for skills** - Before writing custom code, checks if a skill exists
-2. **Reads the skill** - Loads the complete workflow from `SKILL.md`
+1. **Discovers skills** - Skills are automatically detected via YAML frontmatter in `SKILL.md`
+2. **Reads the skill** - Loads the complete workflow from `SKILL.md` when relevant
 3. **Follows the workflow** - Executes each step precisely
 4. **Validates outputs** - Runs validation scripts (OOXML formats)
 5. **Organizes files** - All outputs go to `outputs/<document-name>/`
@@ -129,19 +131,19 @@ Each format has a `SKILL.md` file that defines the workflow. Claude Code:
 venv/bin/python -m markitdown template.pptx
 
 # 2. Generate thumbnails
-venv/bin/python public/pptx/scripts/thumbnail.py template.pptx outputs/sales-deck/thumbnails
+venv/bin/python .claude/skills/pptx/scripts/thumbnail.py template.pptx outputs/sales-deck/thumbnails
 
 # 3. Rearrange slides
-venv/bin/python public/pptx/scripts/rearrange.py template.pptx outputs/sales-deck/working.pptx 0,15,15,23,8
+venv/bin/python .claude/skills/pptx/scripts/rearrange.py template.pptx outputs/sales-deck/working.pptx 0,15,15,23,8
 
 # 4. Extract text inventory
-venv/bin/python public/pptx/scripts/inventory.py outputs/sales-deck/working.pptx outputs/sales-deck/inventory.json
+venv/bin/python .claude/skills/pptx/scripts/inventory.py outputs/sales-deck/working.pptx outputs/sales-deck/inventory.json
 
 # 5. Generate replacement JSON (with formatting)
 # Creates outputs/sales-deck/replacements.json
 
 # 6. Apply replacements
-venv/bin/python public/pptx/scripts/replace.py outputs/sales-deck/working.pptx outputs/sales-deck/replacements.json outputs/sales-deck/final.pptx
+venv/bin/python .claude/skills/pptx/scripts/replace.py outputs/sales-deck/working.pptx outputs/sales-deck/replacements.json outputs/sales-deck/final.pptx
 ```
 
 Claude Code handles all these steps automatically when you ask it to create a presentation.
@@ -172,8 +174,8 @@ Claude Code handles all these steps automatically when you ask it to create a pr
 ## Documentation
 
 - **Getting started**: See `CLAUDE.md` for repository conventions
-- **Workflows**: Each `public/*/SKILL.md` defines complete workflows
-- **Skills system**: `skills-system.md` explains the skills-check pattern
+- **Workflows**: Each `.claude/skills/*/SKILL.md` defines complete workflows
+- **Claude Code skills**: [code.claude.com/docs/en/skills](https://code.claude.com/docs/en/skills)
 - **Claude Code docs**: [docs.claude.com/claude-code](https://docs.claude.com/en/docs/claude-code/overview)
 - **Desktop version**: [Create and edit files with Claude](https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude)
 
@@ -205,7 +207,7 @@ Most scripts and workflows in this repository come directly from Claude (Anthrop
 
 This is a skills repository. To add capabilities:
 
-1. Add scripts to `public/<format>/scripts/`
+1. Add scripts to `.claude/skills/<format>/scripts/`
 2. Document in the appropriate `SKILL.md`
 3. Update `CLAUDE.md` with new commands
 4. Ensure validation scripts pass

@@ -1,8 +1,9 @@
 # Skill-generated documents and working files
 outputs/
 
-# Claude Code
-.claude/
+# Claude Code (ignore all except skills directory)
+.claude/*
+!.claude/skills/
 
 # Python
 __pycache__/

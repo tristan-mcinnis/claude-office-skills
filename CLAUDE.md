@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a skills repository for Office document manipulation (PPTX, DOCX, XLSX, PDF). Each skill provides workflows, scripts, and documentation for working with specific file formats. The repository follows a pattern established in `skills-system.md` which defines mandatory workflows for document creation and editing.
+This is a skills repository for Office document manipulation (PPTX, DOCX, XLSX, PDF). Each skill provides workflows, scripts, and documentation for working with specific file formats. Skills are located in the `.claude/skills/` directory following Claude Code's skills system.
 
 ## Repository Structure
 
 ```
-public/
+.claude/skills/
 ├── pptx/           # PowerPoint presentation skills
 │   ├── SKILL.md    # Main workflow documentation
 │   ├── ooxml.md    # OOXML editing guide
@@ -43,19 +43,18 @@ outputs/            # All skill-generated documents (gitignored)
 ## Key Architecture Principles
 
 ### Skills-Based System
-The repository follows a mandatory skills-check system (defined in `skills-system.md`):
-1. **Before writing ANY code**: Check if a skill exists for the task
-2. **If YES**: Read the corresponding SKILL.md and follow it exactly
-3. **If NO**: Only then proceed with custom code
+The repository uses Claude Code's skills system. Each skill in `.claude/skills/` contains:
+- A `SKILL.md` file with YAML frontmatter (`name` and `description` fields) that Claude uses to determine when to apply the skill
+- Supporting documentation and scripts
 
-This prevents reinventing workflows that already exist in the skills documentation.
+Claude automatically discovers and uses these skills when relevant to the user's request.
 
 ### Two-Phase Approach for Complex Operations
 Most OOXML editing workflows follow this pattern:
-1. **Unpack**: Extract the Office file to raw XML using `venv/bin/python ooxml/scripts/unpack.py`
+1. **Unpack**: Extract the Office file to raw XML using `venv/bin/python .claude/skills/pptx/ooxml/scripts/unpack.py`
 2. **Edit**: Modify XML files directly
-3. **Validate**: Check changes using `venv/bin/python ooxml/scripts/validate.py --original <file>`
-4. **Pack**: Repackage to Office file using `venv/bin/python ooxml/scripts/pack.py`
+3. **Validate**: Check changes using `venv/bin/python .claude/skills/pptx/ooxml/scripts/validate.py --original <file>`
+4. **Pack**: Repackage to Office file using `venv/bin/python .claude/skills/pptx/ooxml/scripts/pack.py`
 
 ### Read-First Policy
 All SKILL.md files must be read **completely** before starting work. Never set range limits when reading these files - they contain critical workflow steps and validation requirements.
@@ -78,7 +77,7 @@ Where `<fitting-name-for-document>` is a descriptive, lowercase, hyphenated name
 1. Create the outputs directory if it doesn't exist
 2. All intermediate files (unpacked XML, JSON inventories, HTML files, images, etc.) go in this directory
 3. Final output files (PPTX, DOCX, XLSX, PDF) go in this directory
-4. Never write skill-generated files to the repository root or public/ directories
+4. Never write skill-generated files to the repository root or .claude/ directories
 5. Use descriptive names that clearly identify the document's purpose
 
 ## Development Setup
@@ -118,37 +117,37 @@ venv/bin/python -m markitdown file.pptx
 
 **Unpack for XML editing**:
 ```bash
-venv/bin/python public/pptx/ooxml/scripts/unpack.py input.pptx outputs/<document-name>/unpacked/
+venv/bin/python .claude/skills/pptx/ooxml/scripts/unpack.py input.pptx outputs/<document-name>/unpacked/
 ```
 
 **Validate after editing**:
 ```bash
-venv/bin/python public/pptx/ooxml/scripts/validate.py outputs/<document-name>/unpacked/ --original input.pptx
+venv/bin/python .claude/skills/pptx/ooxml/scripts/validate.py outputs/<document-name>/unpacked/ --original input.pptx
 ```
 
 **Repack to PPTX**:
 ```bash
-venv/bin/python public/pptx/ooxml/scripts/pack.py outputs/<document-name>/unpacked/ outputs/<document-name>/final.pptx
+venv/bin/python .claude/skills/pptx/ooxml/scripts/pack.py outputs/<document-name>/unpacked/ outputs/<document-name>/final.pptx
 ```
 
 **Create thumbnail grid for visual analysis**:
 ```bash
-venv/bin/python public/pptx/scripts/thumbnail.py template.pptx outputs/<document-name>/thumbnails [--cols 4]
+venv/bin/python .claude/skills/pptx/scripts/thumbnail.py template.pptx outputs/<document-name>/thumbnails [--cols 4]
 ```
 
 **Rearrange slides (duplicate, reorder, delete)**:
 ```bash
-venv/bin/python public/pptx/scripts/rearrange.py template.pptx outputs/<document-name>/rearranged.pptx 0,5,5,12,3
+venv/bin/python .claude/skills/pptx/scripts/rearrange.py template.pptx outputs/<document-name>/rearranged.pptx 0,5,5,12,3
 ```
 
 **Extract text inventory**:
 ```bash
-venv/bin/python public/pptx/scripts/inventory.py presentation.pptx outputs/<document-name>/inventory.json
+venv/bin/python .claude/skills/pptx/scripts/inventory.py presentation.pptx outputs/<document-name>/inventory.json
 ```
 
 **Replace text from JSON**:
 ```bash
-venv/bin/python public/pptx/scripts/replace.py input.pptx outputs/<document-name>/replacements.json outputs/<document-name>/output.pptx
+venv/bin/python .claude/skills/pptx/scripts/replace.py input.pptx outputs/<document-name>/replacements.json outputs/<document-name>/output.pptx
 ```
 
 **Convert HTML to PPTX** (requires Node.js):
@@ -191,7 +190,7 @@ pdftoppm -jpeg -r 150 file.pdf outputs/<document-name>/page
 
 ### Excel (XLSX)
 
-See `public/xlsx/SKILL.md` for comprehensive formula and formatting standards. Key principles:
+See `.claude/skills/xlsx/SKILL.md` for comprehensive formula and formatting standards. Key principles:
 - Zero formula errors required
 - Color coding: Blue=inputs, Black=formulas, Green=internal links, Red=external links
 - Format zeros as "-" in number formatting
@@ -201,7 +200,7 @@ See `public/xlsx/SKILL.md` for comprehensive formula and formatting standards. K
 
 ### PPTX Creation from Scratch
 1. Create output directory: `mkdir -p outputs/<document-name>/`
-2. Read `public/pptx/html2pptx.md` completely (no range limits)
+2. Read `.claude/skills/pptx/html2pptx.md` completely (no range limits)
 3. Design content-informed color palettes (don't use defaults blindly)
 4. Create HTML files for each slide in `outputs/<document-name>/` (720pt × 405pt for 16:9)
 5. Use `class="placeholder"` for charts/tables to be added via PptxGenJS
@@ -213,14 +212,14 @@ See `public/xlsx/SKILL.md` for comprehensive formula and formatting standards. K
 ### PPTX Creation from Template
 1. Create output directory: `mkdir -p outputs/<document-name>/`
 2. Extract text: `venv/bin/python -m markitdown template.pptx`
-3. Create thumbnail grid: `venv/bin/python public/pptx/scripts/thumbnail.py template.pptx outputs/<document-name>/template`
+3. Create thumbnail grid: `venv/bin/python .claude/skills/pptx/scripts/thumbnail.py template.pptx outputs/<document-name>/template`
 4. Analyze template and save inventory to `outputs/<document-name>/template-inventory.md` (list ALL slides with 0-based indices)
 5. Create outline with template mapping (verify slide indices are within range)
-6. Rearrange slides: `venv/bin/python public/pptx/scripts/rearrange.py template.pptx outputs/<document-name>/working.pptx 0,34,34,50,52`
-7. Extract text inventory: `venv/bin/python public/pptx/scripts/inventory.py outputs/<document-name>/working.pptx outputs/<document-name>/text-inventory.json`
+6. Rearrange slides: `venv/bin/python .claude/skills/pptx/scripts/rearrange.py template.pptx outputs/<document-name>/working.pptx 0,34,34,50,52`
+7. Extract text inventory: `venv/bin/python .claude/skills/pptx/scripts/inventory.py outputs/<document-name>/working.pptx outputs/<document-name>/text-inventory.json`
 8. Read entire `text-inventory.json` (no range limits)
 9. Generate replacement JSON to `outputs/<document-name>/replacements.json` with proper paragraph formatting (bold, bullets, alignment, colors)
-10. Apply replacements: `venv/bin/python public/pptx/scripts/replace.py outputs/<document-name>/working.pptx outputs/<document-name>/replacements.json outputs/<document-name>/final.pptx`
+10. Apply replacements: `venv/bin/python .claude/skills/pptx/scripts/replace.py outputs/<document-name>/working.pptx outputs/<document-name>/replacements.json outputs/<document-name>/final.pptx`
 
 **CRITICAL**: Shapes not listed in replacement JSON are automatically cleared. Only shapes with "paragraphs" field get new content.
 
@@ -239,7 +238,7 @@ All skill-based workflows follow the **Output Directory Convention** (see Key Ar
 
 After any OOXML editing (PPTX/DOCX), **always validate immediately**:
 ```bash
-venv/bin/python public/[format]/ooxml/scripts/validate.py <dir> --original <file>
+venv/bin/python .claude/skills/[format]/ooxml/scripts/validate.py <dir> --original <file>
 ```
 
 Fix validation errors before proceeding. Never pack a file without validating first.
