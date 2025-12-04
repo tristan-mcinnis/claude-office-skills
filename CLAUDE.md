@@ -285,3 +285,22 @@ When generating code for document operations:
 - Avoid verbose variable names
 - Minimize print statements
 - Follow existing patterns in scripts/
+
+## TODO / Work in Progress
+
+### PPTX replace.py Enhancement (2024-12-04)
+**Issue**: The current `replace.py` script clears ALL shapes not listed in the replacement JSON. This makes simple targeted edits (like changing a single title) destructive to other content.
+
+**Current state**:
+- Backup created: `.claude/skills/pptx/scripts/replace-original-20251204-2200.py`
+- Test progress: Sections 1-2 of `tests/pptx/Tests.md` passed (11/11 tests)
+- Section 3 test 3.1 failed due to this issue
+
+**Needed fix**: Add a `--selective` or `--preserve-unspecified` flag to `replace.py` that:
+1. Only modifies shapes explicitly listed in the replacement JSON
+2. Leaves unlisted shapes untouched (preserves original content)
+3. Default behavior could remain as-is for backwards compatibility
+
+**Files to modify**:
+- `.claude/skills/pptx/scripts/replace.py` - add selective replacement mode
+- `.claude/skills/pptx/SKILL.md` - document new flag

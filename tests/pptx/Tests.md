@@ -13,33 +13,33 @@ This checklist contains prompts for manually testing Claude Code's PowerPoint ca
 ## Section 1: Text Extraction & Analysis
 
 ### 1.1 Basic Text Extraction
-- [ ] **Extract all text**
+- [x] **Extract all text**
   ```
   Extract all text from [PATH] and show me what's on each slide.
   ```
 
-- [ ] **Summarize presentation**
+- [x] **Summarize presentation**
   ```
   Read [PATH] and give me a summary of what this presentation is about.
   ```
 
-- [ ] **Count slides and content**
+- [x] **Count slides and content**
   ```
   How many slides are in [PATH]? List the title of each slide.
   ```
 
 ### 1.2 Detailed Analysis
-- [ ] **Analyze structure**
+- [x] **Analyze structure**
   ```
   Analyze the structure of [PATH]. What slide layouts are used? How is content organized?
   ```
 
-- [ ] **Find specific content**
+- [x] **Find specific content**
   ```
   Search [PATH] for any mentions of [KEYWORD]. Which slides contain it?
   ```
 
-- [ ] **Extract bullet points**
+- [x] **Extract bullet points**
   ```
   Extract all bullet points from [PATH] and organize them by slide.
   ```
@@ -49,30 +49,30 @@ This checklist contains prompts for manually testing Claude Code's PowerPoint ca
 ## Section 2: Template Analysis & Thumbnails
 
 ### 2.1 Visual Analysis
-- [ ] **Generate thumbnail grid**
+- [x] **Generate thumbnail grid** *(Requires LibreOffice: `brew install --cask libreoffice`)*
   ```
-  Create a thumbnail grid of [PATH] so I can see all slides at once.
-  ```
-
-- [ ] **Analyze template design**
-  ```
-  Analyze the design of [PATH]. What colors, fonts, and layouts does this template use?
+  Create a thumbnail grid of /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx so I can see all slides at once.
   ```
 
-- [ ] **Identify slide types**
+- [x] **Analyze template design**
   ```
-  Look at [PATH] and categorize each slide by type (title slide, content slide, divider, etc.).
+  Analyze the design of /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx. What colors, fonts, and layouts does this template use?
+  ```
+
+- [x] **Identify slide types**
+  ```
+  Look at /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx and categorize each slide by type (title slide, content slide, divider, etc.).
   ```
 
 ### 2.2 Template Inventory
-- [ ] **Create template inventory**
+- [x] **Create template inventory**
   ```
-  Create a detailed inventory of [PATH] listing every slide with its index, layout type, and what placeholders/shapes it contains.
+  Create a detailed inventory of /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx listing every slide with its index, layout type, and what placeholders/shapes it contains.
   ```
 
-- [ ] **Map reusable slides**
+- [x] **Map reusable slides**
   ```
-  Which slides in [PATH] would be good templates to reuse? Create a mapping of slide indices to their purpose.
+  Which slides in /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx would be good templates to reuse? Create a mapping of slide indices to their purpose.
   ```
 
 ---
@@ -80,14 +80,14 @@ This checklist contains prompts for manually testing Claude Code's PowerPoint ca
 ## Section 3: Text Replacement (Template-Based Editing)
 
 ### 3.1 Simple Replacements
-- [ ] **Replace title text**
+- [ ] **Replace title text** *(ISSUE: replace.py clears shapes not in JSON - need selective replacement)*
   ```
-  In [PATH], change the title on slide 1 to "New Company Name" and save as a new file.
+  In /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx, change the title on slide 1 to "New Company Name" and save as a new file.
   ```
 
 - [ ] **Replace multiple text elements**
   ```
-  In [PATH], replace:
+  In /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx, replace:
   - The main title with "Q1 2025 Report"
   - The subtitle with "Financial Overview"
   Save as a new file.
@@ -95,7 +95,7 @@ This checklist contains prompts for manually testing Claude Code's PowerPoint ca
 
 - [ ] **Update bullet points**
   ```
-  On slide 2 of [PATH], replace the bullet points with:
+  On slide 2 of /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx, replace the bullet points with:
   - Revenue increased 15%
   - Customer base grew to 10,000
   - Launched 3 new products
@@ -105,23 +105,23 @@ This checklist contains prompts for manually testing Claude Code's PowerPoint ca
 ### 3.2 Batch Text Replacement
 - [ ] **Find and replace across presentation**
   ```
-  In [PATH], replace all instances of "2024" with "2025" and save as a new file.
+  In /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx, replace all instances of "2024" with "2025" and save as a new file.
   ```
 
 - [ ] **Localization test**
   ```
-  Take [PATH] and replace the English text with German translations (you can use placeholder German). Save as a new file.
+  Take /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx and replace the English text with German translations (you can use placeholder German). Save as a new file.
   ```
 
 ### 3.3 Formatted Replacements
 - [ ] **Replace with formatting**
   ```
-  On slide 1 of [PATH], replace the title with "Important Announcement" in bold red text. Save as a new file.
+  On slide 1 of /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx, replace the title with "Important Announcement" in bold red text. Save as a new file.
   ```
 
 - [ ] **Multi-paragraph with bullets**
   ```
-  Replace the content area on slide 2 of [PATH] with:
+  Replace the content area on slide 2 of /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx with:
 
   Key Highlights:
   • First major point (bold)
@@ -138,23 +138,23 @@ This checklist contains prompts for manually testing Claude Code's PowerPoint ca
 ### 4.1 Slide Rearrangement
 - [ ] **Reorder slides**
   ```
-  Take [PATH] and reorder the slides so slide 3 comes first, then slide 1, then slide 2. Save as a new file.
+  Take /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx and reorder the slides so slide 3 comes first, then slide 1, then slide 2. Save as a new file.
   ```
 
 - [ ] **Duplicate a slide**
   ```
-  In [PATH], duplicate slide 2 three times and save as a new file.
+  In /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx, duplicate slide 2 three times and save as a new file.
   ```
 
 - [ ] **Remove slides**
   ```
-  Create a version of [PATH] with only slides 1, 3, and 5. Save as a new file.
+  Create a version of /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx with only slides 1, 3, and 5. Save as a new file.
   ```
 
 ### 4.2 Complex Rearrangement
 - [ ] **Build presentation from template slides**
   ```
-  Using [PATH] as a template, create a new presentation with:
+  Using /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx as a template, create a new presentation with:
   - Slide 0 (title slide)
   - Slide 2 duplicated twice
   - Slide 4
@@ -164,7 +164,7 @@ This checklist contains prompts for manually testing Claude Code's PowerPoint ca
 
 - [ ] **Extract subset**
   ```
-  Extract slides 5-10 from [PATH] into a new presentation.
+  Extract slides 5-10 from /Users/tristan/Documents/Code/claude-office-skills/tests/pptx/test-pptx/bb-test-1.pptx into a new presentation.
   ```
 
 ---
