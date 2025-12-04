@@ -40,6 +40,9 @@ outputs/            # All skill-generated documents (gitignored)
     ├── *.json      # Inventories and replacements
     ├── *.html      # HTML slides
     └── images/     # Generated images
+
+tests/pptx/         # Manual test checklists
+└── Tests.md        # PowerPoint skill test prompts (43 tests)
 ```
 
 ## Key Architecture Principles
@@ -264,6 +267,16 @@ Fix validation errors before proceeding. Never pack a file without validating fi
 - **LibreOffice**: `soffice` - PPTX to PDF conversion
 - **Poppler**: `pdftoppm` - PDF to image conversion
 - **Pandoc**: `pandoc` - Document text extraction with tracked changes
+
+## Testing
+
+Manual test checklists are located in `tests/pptx/Tests.md`. These contain prompts for testing PowerPoint skill capabilities with real PPTX files.
+
+To run tests:
+1. Open `tests/pptx/Tests.md`
+2. Provide a PPTX file path
+3. Run each prompt in Claude Code
+4. Mark checkboxes as tests pass/fail
 
 ## Code Style
 
