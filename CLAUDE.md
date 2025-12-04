@@ -10,12 +10,14 @@ This is a skills repository for Office document manipulation (PPTX, DOCX, XLSX, 
 
 ```
 .claude/skills/
-├── pptx/           # PowerPoint presentation skills
-│   ├── SKILL.md    # Main workflow documentation
-│   ├── ooxml.md    # OOXML editing guide
+├── pptx/           # PowerPoint CREATION skill (new presentations from scratch)
+│   ├── SKILL.md    # Creation workflow (html2pptx)
+│   ├── ooxml.md    # OOXML reference
 │   ├── html2pptx.md # HTML-to-PPTX conversion guide
 │   ├── scripts/    # Python and JS utilities
 │   └── ooxml/      # OOXML validation and schemas
+├── pptx-edit/      # PowerPoint EDITING skill (modify existing presentations)
+│   └── SKILL.md    # Editing workflows (text replacement, batch style changes, apply outline)
 ├── docx/           # Word document skills
 │   ├── SKILL.md    # Main workflow documentation
 │   ├── ooxml.md    # OOXML editing guide

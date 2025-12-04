@@ -101,11 +101,13 @@ venv/bin/python .claude/skills/pptx/scripts/replace.py input.pptx outputs/deck/r
 
 ```
 .claude/skills/
-├── pptx/           # PowerPoint workflows
-│   ├── SKILL.md    # Main workflow documentation
+├── pptx/           # PowerPoint CREATION (new presentations from scratch)
+│   ├── SKILL.md    # Creation workflow (html2pptx)
 │   ├── html2pptx.md # HTML-to-PPTX guide
-│   ├── ooxml.md    # OOXML editing guide
+│   ├── ooxml.md    # OOXML reference
 │   └── scripts/    # Python/JS utilities
+├── pptx-edit/      # PowerPoint EDITING (modify existing presentations)
+│   └── SKILL.md    # Text replacement, batch style changes, apply outline
 ├── docx/           # Word workflows
 ├── pdf/            # PDF workflows
 └── xlsx/           # Excel workflows
