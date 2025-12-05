@@ -2,11 +2,15 @@
 """Apply text replacements to PowerPoint presentation.
 
 Usage:
-    python replace.py <input.pptx> <replacements.json> <output.pptx>
+    python replace.py <input.pptx> <replacements.json> <output.pptx> [--selective]
 
 The replacements JSON should have the structure output by inventory.py.
-ALL text shapes identified by inventory.py will have their text cleared
-unless "paragraphs" is specified in the replacements for that shape.
+
+Modes:
+    Default:     ALL text shapes are cleared, only shapes with "paragraphs"
+                 in the JSON get new content. Useful for full template replacement.
+    --selective: Only modify shapes explicitly listed in the JSON.
+                 Unlisted shapes are left untouched. Useful for targeted edits.
 """
 
 import json
@@ -211,8 +215,16 @@ def check_duplicate_keys(pairs):
     return result
 
 
-def apply_replacements(pptx_file: str, json_file: str, output_file: str):
-    """Apply text replacements from JSON to PowerPoint presentation."""
+def apply_replacements(pptx_file: str, json_file: str, output_file: str, selective: bool = False):
+    """Apply text replacements from JSON to PowerPoint presentation.
+
+    Args:
+        pptx_file: Path to input PPTX file
+        json_file: Path to replacement JSON file
+        output_file: Path to save output PPTX file
+        selective: If True, only modify shapes listed in JSON (preserve unlisted).
+                   If False, clear all shapes and only fill those with "paragraphs".
+    """
 
     # Load presentation
     prs = Presentation(pptx_file)
@@ -244,6 +256,7 @@ def apply_replacements(pptx_file: str, json_file: str, output_file: str):
     shapes_processed = 0
     shapes_cleared = 0
     shapes_replaced = 0
+    shapes_skipped = 0
 
     # Process each slide from inventory
     for slide_key, shapes_dict in inventory.items():
@@ -266,6 +279,14 @@ def apply_replacements(pptx_file: str, json_file: str, output_file: str):
                 print(f"Warning: {shape_key} has no shape reference")
                 continue
 
+            # Check for replacement data for this shape
+            replacement_shape_data = replacements.get(slide_key, {}).get(shape_key, {})
+
+            # In selective mode, skip shapes not in the replacement JSON
+            if selective and shape_key not in replacements.get(slide_key, {}):
+                shapes_skipped += 1
+                continue
+
             # ShapeData already validates text_frame in __init__
             text_frame = shape.text_frame  # type: ignore
 
@@ -273,7 +294,6 @@ def apply_replacements(pptx_file: str, json_file: str, output_file: str):
             shapes_cleared += 1
 
             # Check for replacement paragraphs
-            replacement_shape_data = replacements.get(slide_key, {}).get(shape_key, {})
             if "paragraphs" not in replacement_shape_data:
                 continue
 
@@ -346,22 +366,32 @@ def apply_replacements(pptx_file: str, json_file: str, output_file: str):
     prs.save(output_file)
 
     # Report results
+    mode_str = "selective" if selective else "full"
     print(f"Saved updated presentation to: {output_file}")
+    print(f"Mode: {mode_str}")
     print(f"Processed {len(prs.slides)} slides")
     print(f"  - Shapes processed: {shapes_processed}")
+    if selective:
+        print(f"  - Shapes skipped (not in JSON): {shapes_skipped}")
     print(f"  - Shapes cleared: {shapes_cleared}")
     print(f"  - Shapes replaced: {shapes_replaced}")
 
 
 def main():
     """Main entry point for command-line usage."""
-    if len(sys.argv) != 4:
+    # Parse arguments
+    args = sys.argv[1:]
+    selective = "--selective" in args
+    if selective:
+        args.remove("--selective")
+
+    if len(args) != 3:
         print(__doc__)
         sys.exit(1)
 
-    input_pptx = Path(sys.argv[1])
-    replacements_json = Path(sys.argv[2])
-    output_pptx = Path(sys.argv[3])
+    input_pptx = Path(args[0])
+    replacements_json = Path(args[1])
+    output_pptx = Path(args[2])
 
     if not input_pptx.exists():
         print(f"Error: Input file '{input_pptx}' not found")
@@ -372,7 +402,7 @@ def main():
         sys.exit(1)
 
     try:
-        apply_replacements(str(input_pptx), str(replacements_json), str(output_pptx))
+        apply_replacements(str(input_pptx), str(replacements_json), str(output_pptx), selective=selective)
     except Exception as e:
         print(f"Error applying replacements: {e}")
         import traceback

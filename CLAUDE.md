@@ -40,9 +40,6 @@ outputs/            # All skill-generated documents (gitignored)
     ├── *.json      # Inventories and replacements
     ├── *.html      # HTML slides
     └── images/     # Generated images
-
-tests/pptx/         # Manual test checklists
-└── Tests.md        # PowerPoint skill test prompts (43 tests)
 ```
 
 ## Key Architecture Principles
@@ -152,7 +149,11 @@ venv/bin/python .claude/skills/pptx/scripts/inventory.py presentation.pptx outpu
 
 **Replace text from JSON**:
 ```bash
+# Full mode (default): clears all shapes, fills those with "paragraphs" in JSON
 venv/bin/python .claude/skills/pptx/scripts/replace.py input.pptx outputs/<document-name>/replacements.json outputs/<document-name>/output.pptx
+
+# Selective mode: only modifies shapes in JSON, preserves unlisted shapes
+venv/bin/python .claude/skills/pptx/scripts/replace.py input.pptx replacements.json output.pptx --selective
 ```
 
 **Convert HTML to PPTX** (requires Node.js):
@@ -268,16 +269,6 @@ Fix validation errors before proceeding. Never pack a file without validating fi
 - **Poppler**: `pdftoppm` - PDF to image conversion
 - **Pandoc**: `pandoc` - Document text extraction with tracked changes
 
-## Testing
-
-Manual test checklists are located in `tests/pptx/Tests.md`. These contain prompts for testing PowerPoint skill capabilities with real PPTX files.
-
-To run tests:
-1. Open `tests/pptx/Tests.md`
-2. Provide a PPTX file path
-3. Run each prompt in Claude Code
-4. Mark checkboxes as tests pass/fail
-
 ## Code Style
 
 When generating code for document operations:
@@ -286,21 +277,3 @@ When generating code for document operations:
 - Minimize print statements
 - Follow existing patterns in scripts/
 
-## TODO / Work in Progress
-
-### PPTX replace.py Enhancement (2024-12-04)
-**Issue**: The current `replace.py` script clears ALL shapes not listed in the replacement JSON. This makes simple targeted edits (like changing a single title) destructive to other content.
-
-**Current state**:
-- Backup created: `.claude/skills/pptx/scripts/replace-original-20251204-2200.py`
-- Test progress: Sections 1-2 of `tests/pptx/Tests.md` passed (11/11 tests)
-- Section 3 test 3.1 failed due to this issue
-
-**Needed fix**: Add a `--selective` or `--preserve-unspecified` flag to `replace.py` that:
-1. Only modifies shapes explicitly listed in the replacement JSON
-2. Leaves unlisted shapes untouched (preserves original content)
-3. Default behavior could remain as-is for backwards compatibility
-
-**Files to modify**:
-- `.claude/skills/pptx/scripts/replace.py` - add selective replacement mode
-- `.claude/skills/pptx/SKILL.md` - document new flag

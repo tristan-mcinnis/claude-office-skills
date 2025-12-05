@@ -114,15 +114,20 @@ Creates JSON with all text shapes, positions, and formatting.
 ### Step 4: Apply Replacements
 
 ```bash
+# Full mode (default): clears ALL shapes, fills only those with "paragraphs" in JSON
 venv/bin/python .claude/skills/pptx/scripts/replace.py presentation.pptx replacements.json output.pptx
+
+# Selective mode: only modifies shapes listed in JSON, preserves unlisted shapes
+venv/bin/python .claude/skills/pptx/scripts/replace.py presentation.pptx replacements.json output.pptx --selective
 ```
 
 ### CRITICAL Rules
 
-1. **Shapes not in replacement JSON are CLEARED** - Include all shapes you want to keep
-2. **Bullets need `bullet: true` and `level: 0`** - Don't include bullet symbols in text
-3. **Bullets force LEFT alignment** - Don't override with `alignment`
-4. **Run inventory FIRST** - Never guess at shape IDs
+1. **Full mode (default):** Shapes not in replacement JSON are CLEARED - Include all shapes you want to keep
+2. **Selective mode (`--selective`):** Only shapes in JSON are modified - Use for targeted edits like changing just a title
+3. **Bullets need `bullet: true` and `level: 0`** - Don't include bullet symbols in text
+4. **Bullets force LEFT alignment** - Don't override with `alignment`
+5. **Run inventory FIRST** - Never guess at shape IDs
 
 ---
 
